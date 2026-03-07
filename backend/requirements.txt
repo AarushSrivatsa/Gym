@@ -6,3 +6,5 @@ python-jose
 argon2-cffi
 requests
 apscheduler
+python-dotenv
+asyncpg
