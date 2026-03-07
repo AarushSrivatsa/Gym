@@ -4,9 +4,13 @@ __pycache__/
 .venv/
 .env
 
+
 # Node / React
 node_modules/
 build/
 
 # IDE
 .vscode/
+
+alembic/
+alembic.ini
