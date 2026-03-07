@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 load_dotenv()
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 BREVO_SENDER_EMAIL = "pitlaaarushsrivatsa@gmail.com"
 BREVO_API_KEY = os.getenv("BREVO_API_KEY")
