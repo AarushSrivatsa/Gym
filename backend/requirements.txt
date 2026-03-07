@@ -4,3 +4,5 @@ pydantic[email]
 sqlalchemy
 python-jose
 argon2-cffi
+requests
+apscheduler
