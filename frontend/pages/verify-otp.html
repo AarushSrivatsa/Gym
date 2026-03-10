@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify OTP — ForgeGym</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<div class="auth-shell">
+
+  <div class="auth-visual">
+    <div class="visual-bg"></div>
+    <div class="visual-grid"></div>
+    <div class="visual-number">02</div>
+    <div class="visual-content">
+      <div class="visual-tag">Verification</div>
+      <h1>Check your <span>Inbox.</span></h1>
+      <p>We sent a 6-digit code to your email. It expires in 5 minutes.</p>
+    </div>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+
+      <div class="card-header">
+        <h2>Verify OTP</h2>
+        <p>Enter the code we sent you</p>
+      </div>
+
+      <div class="email-badge" id="email-badge">✉ loading...</div>
+
+      <div class="alert alert-error"   id="error-msg"></div>
+      <div class="alert alert-success" id="success-msg"></div>
+
+      <div class="form-group">
+        <label>6-Digit Code</label>
+        <div class="otp-row" id="otp-row">
+          <input type="text" maxlength="1" inputmode="numeric" />
+          <input type="text" maxlength="1" inputmode="numeric" />
+          <input type="text" maxlength="1" inputmode="numeric" />
+          <input type="text" maxlength="1" inputmode="numeric" />
+          <input type="text" maxlength="1" inputmode="numeric" />
+          <input type="text" maxlength="1" inputmode="numeric" />
+        </div>
+      </div>
+
+      <button class="btn-primary" id="verify-btn" onclick="handleVerify()">
+        Verify &amp; Create Account
+      </button>
+
+      <p class="footer-text">
+        Wrong email? <a class="link" href="signup.html">Go back</a>
+      </p>
+
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { verifyOTP } from "../api/auth.js";
+
+  const email = sessionStorage.getItem("otp_email");
+  if (!email) location.href = "signup.html";
+
+  document.getElementById("email-badge").textContent = "✉ " + email;
+
+  const inputs    = Array.from(document.querySelectorAll("#otp-row input"));
+  const btn       = document.getElementById("verify-btn");
+  const errorEl   = document.getElementById("error-msg");
+  const successEl = document.getElementById("success-msg");
+
+  // OTP input auto-advance
+  inputs.forEach((inp, i) => {
+    inp.addEventListener("input", () => {
+      inp.value = inp.value.replace(/\D/, "").slice(-1);
+      if (inp.value && i < 5) inputs[i + 1].focus();
+    });
+    inp.addEventListener("keydown", e => {
+      if (e.key === "Backspace" && !inp.value && i > 0) {
+        inputs[i - 1].focus();
+      }
+      if (e.key === "Enter") handleVerify();
+    });
+    inp.addEventListener("paste", e => {
+      const pasted = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "");
+      if (pasted.length === 6) {
+        pasted.split("").forEach((ch, j) => { if (inputs[j]) inputs[j].value = ch; });
+        inputs[5].focus();
+        e.preventDefault();
+      }
+    });
+  });
+
+  function getOTP() { return inputs.map(i => i.value).join(""); }
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.add("visible");
+    successEl.classList.remove("visible");
+  }
+
+  function setLoading(on) {
+    btn.disabled = on;
+    btn.innerHTML = on
+      ? '<span class="spinner"></span> Verifying...'
+      : "Verify &amp; Create Account";
+  }
+
+  window.handleVerify = async function () {
+    errorEl.classList.remove("visible");
+    const otp = getOTP();
+    if (otp.length < 6) return showError("Please enter the full 6-digit code.");
+
+    setLoading(true);
+    try {
+      const data = await verifyOTP(email, otp);
+      localStorage.setItem("access",  data.access_token);
+      localStorage.setItem("refresh", data.refresh_token);
+      localStorage.setItem("email",   email);
+      sessionStorage.removeItem("otp_email");
+      location.href = "dashboard.html";
+    } catch (e) {
+      showError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+</script>
+
+</body>
+</html>

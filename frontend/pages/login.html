@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — ForgeGym</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<div class="auth-shell">
+
+  <!-- Left visual panel -->
+  <div class="auth-visual">
+    <div class="visual-bg"></div>
+    <div class="visual-grid"></div>
+    <div class="visual-number">00</div>
+    <div class="visual-content">
+      <div class="visual-tag">Welcome Back</div>
+      <h1>Back to the <span>Zone.</span></h1>
+      <p>Log in to continue your training, track progress, and stay consistent.</p>
+    </div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="auth-form-side">
+    <div class="auth-card">
+
+      <div class="card-header">
+        <h2>Sign In</h2>
+        <p>Good to see you again</p>
+      </div>
+
+      <div class="alert alert-error" id="error-msg"></div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Your password" autocomplete="current-password" />
+      </div>
+
+      <div class="forgot-link">
+        <a class="link" href="forgot-password.html">Forgot password?</a>
+      </div>
+
+      <button class="btn-primary" id="login-btn" onclick="handleLogin()">
+        Sign In
+      </button>
+
+      <div class="divider">or</div>
+
+      <button class="btn-ghost" onclick="location.href='signup.html'">
+        Create a new account
+      </button>
+
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { login } from "../api/auth.js";
+
+  // Redirect if already logged in
+  if (localStorage.getItem("access")) location.href = "dashboard.html";
+
+  const emailEl    = document.getElementById("email");
+  const passwordEl = document.getElementById("password");
+  const btn        = document.getElementById("login-btn");
+  const errorEl    = document.getElementById("error-msg");
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.add("visible");
+  }
+
+  function setLoading(on) {
+    btn.disabled = on;
+    btn.innerHTML = on
+      ? '<span class="spinner"></span> Signing in...'
+      : "Sign In";
+  }
+
+  window.handleLogin = async function () {
+    errorEl.classList.remove("visible");
+    const email    = emailEl.value.trim();
+    const password = passwordEl.value;
+
+    if (!email || !password) return showError("Please fill in all fields.");
+
+    setLoading(true);
+    try {
+      const data = await login(email, password);
+      localStorage.setItem("access",  data.access_token);
+      localStorage.setItem("refresh", data.refresh_token);
+      localStorage.setItem("email",   email);
+      location.href = "dashboard.html";
+    } catch (e) {
+      showError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Enter key support
+  passwordEl.addEventListener("keydown", e => { if (e.key === "Enter") handleLogin(); });
+</script>
+
+</body>
+</html>

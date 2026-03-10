@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up — ForgeGym</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<div class="auth-shell">
+
+  <div class="auth-visual">
+    <div class="visual-bg"></div>
+    <div class="visual-grid"></div>
+    <div class="visual-number">01</div>
+    <div class="visual-content">
+      <div class="visual-tag">New Member</div>
+      <h1>Join the <span>Grind.</span></h1>
+      <p>Create your account and start tracking your fitness journey today.</p>
+    </div>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="auth-card">
+
+      <div class="card-header">
+        <h2>Create Account</h2>
+        <p>Enter your details to get started</p>
+      </div>
+
+      <div class="alert alert-error" id="error-msg"></div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Min. 8 characters" autocomplete="new-password" />
+      </div>
+
+      <button class="btn-primary" id="signup-btn" onclick="handleSignup()">
+        Send OTP
+      </button>
+
+      <p class="footer-text">
+        Already have an account? <a class="link" href="login.html">Sign in</a>
+      </p>
+
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { sendOTP } from "../api/auth.js";
+
+  if (localStorage.getItem("access")) location.href = "dashboard.html";
+
+  const emailEl    = document.getElementById("email");
+  const passwordEl = document.getElementById("password");
+  const btn        = document.getElementById("signup-btn");
+  const errorEl    = document.getElementById("error-msg");
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.add("visible");
+  }
+
+  function setLoading(on) {
+    btn.disabled = on;
+    btn.innerHTML = on
+      ? '<span class="spinner"></span> Sending OTP...'
+      : "Send OTP";
+  }
+
+  window.handleSignup = async function () {
+    errorEl.classList.remove("visible");
+    const email    = emailEl.value.trim();
+    const password = passwordEl.value;
+
+    if (!email)           return showError("Please enter your email.");
+    if (password.length < 8) return showError("Password must be at least 8 characters.");
+
+    setLoading(true);
+    try {
+      await sendOTP(email, password);
+      sessionStorage.setItem("otp_email", email);
+      location.href = "verify-otp.html";
+    } catch (e) {
+      showError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  passwordEl.addEventListener("keydown", e => { if (e.key === "Enter") handleSignup(); });
+</script>
+
+</body>
+</html>

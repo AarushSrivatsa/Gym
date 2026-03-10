@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — ForgeGym</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+
+<div class="dashboard">
+
+  <nav class="dash-nav">
+    <div class="dash-logo">FORGE<span>GYM</span></div>
+    <div class="dash-user">
+      <span id="user-email"></span>
+      <button class="btn-sm" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="dash-body">
+
+    <div class="dash-welcome">
+      <h1>Welcome back, <span>Athlete.</span></h1>
+      <p>Your dashboard is ready. Start logging your workouts.</p>
+    </div>
+
+    <div class="dash-grid">
+      <div class="dash-card">
+        <div class="card-label">Workouts This Week</div>
+        <div class="card-value">0</div>
+        <div class="card-sub">Start your first session</div>
+      </div>
+      <div class="dash-card">
+        <div class="card-label">Active Streak</div>
+        <div class="card-value">0</div>
+        <div class="card-sub">Days in a row</div>
+      </div>
+      <div class="dash-card">
+        <div class="card-label">Goals Hit</div>
+        <div class="card-value">0</div>
+        <div class="card-sub">This month</div>
+      </div>
+      <div class="dash-card">
+        <div class="card-label">Membership</div>
+        <div class="card-value">FREE</div>
+        <div class="card-sub">Upgrade to Pro</div>
+      </div>
+    </div>
+
+    <div class="dash-banner">
+      <div class="banner-icon">⚡</div>
+      <div class="banner-text">
+        <h3>Ready to train?</h3>
+        <p>Log your first workout to start building your progress history. Every rep counts.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Guard — redirect to login if not authenticated
+  const token = localStorage.getItem("access");
+  if (!token) location.href = "login.html";
+
+  const email = localStorage.getItem("email") || "athlete";
+  document.getElementById("user-email").textContent = email;
+
+  function logout() {
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
+    localStorage.removeItem("email");
+    location.href = "login.html";
+  }
+</script>
+
+</body>
+</html>
